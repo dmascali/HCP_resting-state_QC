@@ -42,30 +42,21 @@ end
 
 function p = genpath_noGit(d)
 %GENPATH Generate recursive toolbox path.
-%   P = GENPATH returns a character vector containing a path name 
-%   that includes all the folders and subfolders below MATLABROOT/toolbox, 
-%   including empty subfolders.
+%   P = GENPATH returns a new path string by adding all the subdirectories 
+%   of MATLABROOT/toolbox, including empty subdirectories. 
 %
-%   P = GENPATH(FOLDERNAME) returns a character vector containing a path 
-%   name that includes FOLDERNAME and all subfolders of FOLDERNAME, 
-%   including empty subfolders.
+%   P = GENPATH(D) returns a path string starting in D, plus, recursively, 
+%   all the subdirectories of D, including empty subdirectories.
 %   
 %   NOTE 1: GENPATH will not exactly recreate the original MATLAB path.
 %
-%   NOTE 2: GENPATH only includes subfolders allowed on the MATLAB
+%   NOTE 2: GENPATH only includes subdirectories allowed on the MATLAB
 %   path.
 %
 %   See also PATH, ADDPATH, RMPATH, SAVEPATH.
 
-%DM modified to exclude .git folders
-
-%   Copyright 1984-2017 The MathWorks, Inc.
+%   Copyright 1984-2006 The MathWorks, Inc.
 %------------------------------------------------------------------------------
-
-% String Adoption
-if nargin > 0
-    d = convertStringsToChars(d);
-end
 
 if nargin==0,
   p = genpath(fullfile(matlabroot,'toolbox'));

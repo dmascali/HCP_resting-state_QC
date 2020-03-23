@@ -3,6 +3,8 @@ function [status] = HcpDownloadCommand(subj,hcp_file_path,local_folder,varargin)
 % hcp_file_path = path of the file to download
 % local_folder = HCP folder on your local system (where to download the
 % files)
+%__________________________________________________________________________
+%Daniele Mascali - danielemascali@gmail.com
 
 %--------------VARARGIN----------------------
 params  =  {'aws_path',                                   'HCP_release'};

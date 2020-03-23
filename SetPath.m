@@ -9,17 +9,17 @@ restoredefaultpath
 
 disp('SetPath - Adding project specific toolbox');
 
-% Add fMRI denoising toolbox (download from: )
+% Add fMRI denoising toolbox (git clone https://github.com/dmascali/fmri_denoising.git )
 p = genpath_noGit('/home/local/LAB_G1/danielem/Documents/MATLAB/repos/fmri_denoising'); addpath(p);
 
-% Add MatlabMailFeedback (download from: )
+% Add MatlabMailFeedback (git clone https://github.com/dmascali/MatlabMailFeedback.git )
 p = genpath_noGit('/home/local/LAB_G1/danielem/Documents/MATLAB/repos/MatlabMailFeedback'); addpath(p);
 
 % Add the utils directory (cifti utils and...)
 pcf = mfilename('fullpath');
-p = fileparts(pcf);
-p = [p,'/utils'];
-p = genpath_noGit(p); addpath(p);
+base = fileparts(pcf);
+p = [base,'/utils']; p = genpath_noGit(p); addpath(p);
+p = [base,'/subfunc']; p = genpath_noGit(p); addpath(p);
 
 % Connectome Workbench needs to be installed on the system
 

@@ -1,9 +1,6 @@
-function extract_HCP_data
+function extract_HCP_data(list_path)
 
-sendstatus('danielemascali@gmail.com');
-
-%subject list file
-fid = fopen('subject_list_test.txt');
+%---------------------------- Input variables -----------------------------
 %download folder
 dest_folder = './DATA';
 % HCP release
@@ -12,13 +9,23 @@ HCP_release = 'HCP_1200';
 flag_RP = 0;
 flag_stats = 0;
 flag_IB = 1; %ImageBased
-
 % parameters for IB
 TR = 0.72;
 HP = 2000; 
 WBCOMMAND = 'wb_command';
 BCMODE = 'CORRECT';
-OUTSTRING = 'stats_dm'; %it is not used for loading stats, just to doublecheck results
+OUTSTR
+%--------------------------------------------------------------------------
+
+%setup MatlabMailFeedback 
+mail = 'danielemascali@gmail.com';
+DeltaTime = 60*12; %every 12 hours send a beacon
+sendstatus(mail);
+
+%subject list file
+fid = fopen(list_path);
+
+ING = 'stats_dm'; %it is not used for loading stats, just to doublecheck results
 
 subj = fgetl(fid); %get first subj ID
 while subj > 0
@@ -54,7 +61,6 @@ while subj > 0
         for l = 1:length(FILE)
             FILE_STATUS(l) = hcp_download_command(subj,FILE{l},dest_folder,'HCP_release',HCP_release);
         end
-        
         %--------------------------------------
         
         %-------------process files------------
@@ -170,7 +176,7 @@ while subj > 0
 %         %-------------process files------------
         for l = 1:1%4 % four runs
             if ~FILE_STATUS( (NfilesPerRun*(l-1) + 1) )
-                
+                sendbeacon(mail,DeltaTime);
                 tic;
                 % Run a modified version of the HCP's RestingStateStats
                 TCs = RestingStateStats_mod( [subj_local_path,'/',FILE{(NfilesPerRun*(l-1) + 2)}] ,...
@@ -205,13 +211,11 @@ while subj > 0
             save(output_path,'REST1_LR','REST2_LR','REST1_RL','REST2_RL');
         end
         %--------------------------------------
-    end
-    
-            
-        
+    end 
+       
     %--------------remove files------------
     % remove the whole subj folder
-
+    system(['rm -r ',subj_local_path]);
     %--------------------------------------
     
     %get next subj ID

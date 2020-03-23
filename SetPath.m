@@ -1,25 +1,39 @@
 function SetPath
 % Set the path variable for the current project
 
-
 % In case of messy path, let's clean it, otherwise comment the line
 disp('SetPath - Warning: restoring default Matlab Path');
 restoredefaultpath
 
-
-disp('SetPath - Adding project specific toolbox');
-
-% Add fMRI denoising toolbox (git clone https://github.com/dmascali/fmri_denoising.git )
-p = genpath_noGit('/home/local/LAB_G1/danielem/Documents/MATLAB/repos/fmri_denoising'); addpath(p);
-
-% Add MatlabMailFeedback (git clone https://github.com/dmascali/MatlabMailFeedback.git )
-p = genpath_noGit('/home/local/LAB_G1/danielem/Documents/MATLAB/repos/MatlabMailFeedback'); addpath(p);
-
 % Add the utils directory (cifti utils and...)
+disp('SetPath - Adding toolbox from current folder');
 pcf = mfilename('fullpath');
 base = fileparts(pcf);
 p = [base,'/utils']; p = genpath_noGit(p); addpath(p);
 p = [base,'/subfunc']; p = genpath_noGit(p); addpath(p);
+
+
+% Add fMRI denoising toolbox (git clone https://github.com/dmascali/fmri_denoising.git )
+% Add MatlabMailFeedback (git clone https://github.com/dmascali/MatlabMailFeedback.git )
+disp('SetPath - Adding project specific toolbox');
+
+if ispc
+    computername = getenv('computername');
+elseif isunix || ismac   %not tested on mac
+    [~, computername] = system('hostname');
+    computername = strtrim(computername);
+end
+
+switch computername
+    case {'aristotele','parmenide','platone','democrito','cygnus'}
+        FD  = '/home/local/LAB_G1/danielem/Documents/MATLAB/repos/fmri_denoising';
+        MMF = '/home/local/LAB_G1/danielem/Documents/MATLAB/repos/MatlabMailFeedback';
+    otherwise
+        error('Not recognized machine.');
+end
+
+p = genpath_noGit(FD); addpath(p);
+p = genpath_noGit(MMF); addpath(p);
 
 % Connectome Workbench needs to be installed on the system
 

@@ -15,12 +15,12 @@ TR = 0.72;
 HP = 2000; 
 WBCOMMAND = 'wb_command';
 BCMODE = 'CORRECT';
-OUTSTR
+OUTSTRING = [];
 %--------------------------------------------------------------------------
 
 %setup MatlabMailFeedback 
 mail = 'danielemascali@gmail.com';
-DeltaTime = 60*12; %every 12 hours send a beacon
+DeltaTime = 5; %every 12 hours send a beacon
 sendstatus(mail);
 
 %subject list file
@@ -39,16 +39,16 @@ while subj > 0
         
         %------------download files------------
         FILE = {}; FILE_STATUS = [];% init
-        FILE{end+1} = [subj,'/T1w/',subj,'stats/aseg.stats'];
+        FILE{end+1} = ['T1w/',subj,'/stats/aseg.stats'];
         
         for l = 1:length(FILE)
-            FILE_STATUS(l) = hcp_download_command(subj,FILE{l},dest_folder,'HCP_release',HCP_release);
+            FILE_STATUS(l) = HcpDownloadCommand(subj,FILE{l},dest_folder,'HCP_release',HCP_release);
         end
         %-------------------------------------- 
         
         %-----------save extracted info--------
         for l = 1:length(FILE_STATUS)
-           system(['cp  ',subj_local_path,'/',FILE{l},' ',output_path,'_aseg.stats']);
+           system(['cp  ',subj_local_path,'/',FILE{l},' ',output_path,'aseg.stats']);
         end
         %-------------------------------------- 
     end
@@ -80,7 +80,7 @@ while subj > 0
 %         FILE{end+1} = ['unprocessed/3T/rfMRI_REST2_RL/',subj,'_3T_rfMRI_REST2_RL_SBRef.nii.gz'];
         
         for l = 1:length(FILE)
-            FILE_STATUS(l) = hcp_download_command(subj,FILE{l},dest_folder,'HCP_release',HCP_release);
+            FILE_STATUS(l) = HcpDownloadCommand(subj,FILE{l},dest_folder,'HCP_release',HCP_release);
         end
         %--------------------------------------
         
@@ -130,7 +130,7 @@ while subj > 0
         FILE{end+1} = 'MNINonLinear/Results/rfMRI_REST2_RL/rfMRI_REST2_RL_Atlas_stats.txt';
               
         for l = 1:length(FILE)
-            FILE_STATUS(l) = hcp_download_command(subj,FILE{l},dest_folder,'HCP_release',HCP_release);
+            FILE_STATUS(l) = HcpDownloadCommand(subj,FILE{l},dest_folder,'HCP_release',HCP_release);
         end
         
         %--------------------------------------
@@ -189,12 +189,11 @@ while subj > 0
         end
               
         for l = 1:length(FILE)
-            %FILE_STATUS(l) = hcp_download_command(subj,FILE{l},dest_folder,'HCP_release',HCP_release);
-            FILE_STATUS(l) = 0;
+            FILE_STATUS(l) = HcpDownloadCommand(subj,FILE{l},dest_folder,'HCP_release',HCP_release);
         end
         %--------------------------------------
         
-%         %-------------process files------------
+        %-------------process files------------
         for l = 1:4% four runs
             if ~FILE_STATUS( (NfilesPerRun*(l-1) + 1) )
                 sendbeacon(mail,DeltaTime);

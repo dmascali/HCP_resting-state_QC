@@ -8,6 +8,7 @@ HCP_release = 'HCP_1200';
 %block to execute
 flag_RP = 0;
 flag_stats = 0;
+flag_struct = 1; %aseg.stats
 flag_IB = 1; %ImageBased
 % parameters for IB
 TR = 0.72;
@@ -31,14 +32,34 @@ subj = fgetl(fid); %get first subj ID
 while subj > 0
     disp(['Doing subj: ',subj])
     subj_local_path = [dest_folder,'/',subj];
+    
+    if flag_struct
+        % each block has a separate output file
+        output_path = [dest_folder,'/',subj,'_'];
+        
+        %------------download files------------
+        FILE = {}; FILE_STATUS = [];% init
+        FILE{end+1} = [subj,'/T1w/',subj,'stats/aseg.stats'];
+        
+        for l = 1:length(FILE)
+            FILE_STATUS(l) = hcp_download_command(subj,FILE{l},dest_folder,'HCP_release',HCP_release);
+        end
+        %-------------------------------------- 
+        
+        %-----------save extracted info--------
+        for l = 1:length(FILE_STATUS)
+           system(['cp  ',subj_local_path,'/',FILE{l},' ',output_path,'_aseg.stats']);
+        end
+        %-------------------------------------- 
+    end
  
     if flag_RP
         % each block has a separate output file
         output_path = [dest_folder,'/',subj,'_QC_RP.mat'];
         
         %------------download files------------
-        FILE = []; FILE_STATUS = []; TMP = [];% init
-        FILE{1}     = 'MNINonLinear/Results/rfMRI_REST1_LR/Movement_Regressors.txt';
+        FILE = {}; FILE_STATUS = []; TMP = [];% init
+        FILE{end+1} = 'MNINonLinear/Results/rfMRI_REST1_LR/Movement_Regressors.txt';
         FILE{end+1} = 'MNINonLinear/Results/rfMRI_REST2_LR/Movement_Regressors.txt';
         FILE{end+1} = 'MNINonLinear/Results/rfMRI_REST1_RL/Movement_Regressors.txt';
         FILE{end+1} = 'MNINonLinear/Results/rfMRI_REST2_RL/Movement_Regressors.txt';
@@ -102,8 +123,8 @@ while subj > 0
         output_path = [dest_folder,'/',subj,'_QC_ImageBased.mat'];
         
         %------------download files------------
-        FILE = []; FILE_STATUS = []; TMP = [];% init
-        FILE{1}     = 'MNINonLinear/Results/rfMRI_REST1_LR/rfMRI_REST1_LR_Atlas_stats.txt';
+        FILE = {}; FILE_STATUS = []; TMP = [];% init
+        FILE{end+1} = 'MNINonLinear/Results/rfMRI_REST1_LR/rfMRI_REST1_LR_Atlas_stats.txt';
         FILE{end+1} = 'MNINonLinear/Results/rfMRI_REST2_LR/rfMRI_REST2_LR_Atlas_stats.txt';
         FILE{end+1} = 'MNINonLinear/Results/rfMRI_REST1_RL/rfMRI_REST1_RL_Atlas_stats.txt';
         FILE{end+1} = 'MNINonLinear/Results/rfMRI_REST2_RL/rfMRI_REST2_RL_Atlas_stats.txt';
@@ -150,8 +171,8 @@ while subj > 0
         %------------download files------------
         FILE = {}; FILE_STATUS = []; TMP = [];% init
         count = 0;
-        for run = {'1'}%{'1','2'}
-            for phase = {'LR'}%{'LR','RL'}
+        for run = {'1','2'}
+            for phase = {'LR','RL'}
                 count = count + 1;
                 run_name = ['rfMRI_REST',run{1},'_',phase{1}];        
                 FILE{end+1} = ['MNINonLinear/Results/',run_name,'/',run_name,'_Atlas.dtseries.nii'];
@@ -174,7 +195,7 @@ while subj > 0
         %--------------------------------------
         
 %         %-------------process files------------
-        for l = 1:1%4 % four runs
+        for l = 1:4% four runs
             if ~FILE_STATUS( (NfilesPerRun*(l-1) + 1) )
                 sendbeacon(mail,DeltaTime);
                 tic;

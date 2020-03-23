@@ -197,7 +197,6 @@ while subj > 0
         for l = 1:4% four runs
             if ~FILE_STATUS( (NfilesPerRun*(l-1) + 1) )
                 sendbeacon(mail,DeltaTime);
-                tic;
                 % Run a modified version of the HCP's RestingStateStats
                 TCs = RestingStateStats_mod( [subj_local_path,'/',FILE{(NfilesPerRun*(l-1) + 2)}] ,...
                   HP,...%HP
@@ -212,7 +211,7 @@ while subj > 0
                   BCMODE,...bcmode
                   OUTSTRING,...outstring
                   [subj_local_path,'/',FILE{(NfilesPerRun*(l-1) + 3)}],...
-                  [subj_local_path,'/',FILE{(NfilesPerRun*(l-1) + 4)}]); t=toc; readsec(t);
+                  [subj_local_path,'/',FILE{(NfilesPerRun*(l-1) + 4)}]);
               
                 TMP(l).TCs= TCs; 
             end

@@ -7,9 +7,9 @@ dest_folder = './DATA';
 HCP_release = 'HCP_1200'; 
 %block to execute
 flag_RP = 0;
-flag_stats = 0;
+flag_IB_stats = 1; %ImageBased stats
+flag_IB_tcs = 1; %ImageBased tcs
 flag_struct = 1; %aseg.stats
-flag_IB = 1; %ImageBased
 % parameters for IB
 TR = 0.72;
 HP = 2000; 
@@ -20,7 +20,7 @@ OUTSTRING = [];
 
 %setup MatlabMailFeedback 
 mail = 'danielemascali@gmail.com';
-DeltaTime = 60*12; %every 12 hours send a beacon
+DeltaTime = 60*6; %every 6 hours sends a beacon
 sendstatus(mail);
 
 global SENDSTATUS_ERROR_MSG
@@ -125,9 +125,9 @@ while subj > 0
         %--------------------------------------
     end
     
-    if flag_stats
+    if flag_IB_stats
         % each block has a separate output file
-        output_path = [dest_folder,'/',subj,'_QC_ImageBased.mat'];
+        output_path = [dest_folder,'/',subj,'_QC_IB_stats.mat'];
         
         %------------download files------------
         FILE = {}; FILE_STATUS = []; TMP = [];% init
@@ -171,9 +171,9 @@ while subj > 0
     end
     
     
-    if flag_IB
+    if flag_IB_tcs
         % each block has a separate output file
-        output_path = [dest_folder,'/',subj,'_stats.mat'];
+        output_path = [dest_folder,'/',subj,'_QC_IB_tcs.mat'];
         
         %------------download files------------
         FILE = {}; FILE_STATUS = []; TMP = [];% init
@@ -248,13 +248,6 @@ while subj > 0
     subj = fgetl(fid);
 end
 
-
 fclose(fid);
-
-
-
-
-
-
 return
 end

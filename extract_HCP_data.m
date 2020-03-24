@@ -20,8 +20,10 @@ OUTSTRING = [];
 
 %setup MatlabMailFeedback 
 mail = 'danielemascali@gmail.com';
-DeltaTime = 5; %every 12 hours send a beacon
+DeltaTime = 60*12; %every 12 hours send a beacon
 sendstatus(mail);
+
+global SENDSTATUS_ERROR_MSG
 
 if nargin == 1
     beacon = 0;
@@ -35,6 +37,7 @@ ING = 'stats_dm'; %it is not used for loading stats, just to doublecheck results
 subj = fgetl(fid); %get first subj ID
 while subj > 0
     disp(['Doing subj: ',subj])
+    SENDSTATUS_ERROR_MSG = ['Failed when doing subj: ',subj];
     subj_local_path = [dest_folder,'/',subj];
     
     if flag_struct

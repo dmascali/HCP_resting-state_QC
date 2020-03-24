@@ -1,4 +1,4 @@
-function extract_HCP_data(list_path)
+function extract_HCP_data(list_path,beacon)
 
 %---------------------------- Input variables -----------------------------
 %download folder
@@ -22,6 +22,10 @@ OUTSTRING = [];
 mail = 'danielemascali@gmail.com';
 DeltaTime = 5; %every 12 hours send a beacon
 sendstatus(mail);
+
+if nargin == 1
+    beacon = 0;
+end
 
 %subject list file
 fid = fopen(list_path);
@@ -196,7 +200,7 @@ while subj > 0
         %-------------process files------------
         for l = 1:4% four runs
             if ~FILE_STATUS( (NfilesPerRun*(l-1) + 1) )
-                sendbeacon(mail,DeltaTime);
+                if beacon; sendbeacon(mail,DeltaTime); end
                 % Run a modified version of the HCP's RestingStateStats
                 TCs = RestingStateStats_mod( [subj_local_path,'/',FILE{(NfilesPerRun*(l-1) + 2)}] ,...
                   HP,...%HP

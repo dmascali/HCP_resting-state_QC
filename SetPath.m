@@ -11,7 +11,7 @@ pcf = mfilename('fullpath');
 base = fileparts(pcf);
 p = [base,'/utils']; p = genpath_noGit(p); addpath(p);
 p = [base,'/subfunc']; p = genpath_noGit(p); addpath(p);
-
+p = [base,'/subjlists']; p = genpath_noGit(p); addpath(p);
 
 % Add fMRI denoising toolbox (git clone https://github.com/dmascali/fmri_denoising.git )
 % Add MatlabMailFeedback (git clone https://github.com/dmascali/MatlabMailFeedback.git )

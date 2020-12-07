@@ -227,8 +227,8 @@ while subj > 0
 %         
 %         %-----------save extracted info--------
         if ~FILE_STATUS((NfilesPerRun*0 + 1)); REST1_LR = TMP(1); else REST1_LR = []; end
-        if ~FILE_STATUS((NfilesPerRun*1 + 1)); REST2_LR = TMP(2); else REST2_LR = []; end
-        if ~FILE_STATUS((NfilesPerRun*2 + 1)); REST1_RL = TMP(3); else REST1_RL = []; end
+        if ~FILE_STATUS((NfilesPerRun*1 + 1)); REST2_LR = TMP(3); else REST2_LR = []; end %NB: the order is differnt from previous metrics
+        if ~FILE_STATUS((NfilesPerRun*2 + 1)); REST1_RL = TMP(2); else REST1_RL = []; end
         if ~FILE_STATUS((NfilesPerRun*3 + 1)); REST2_RL = TMP(4); else REST2_RL = []; end
          
         try 

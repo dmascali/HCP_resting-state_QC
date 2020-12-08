@@ -1,0 +1,7 @@
+The following subjs do not have one or more session of the Atlas.dtseries.nii
+182032
+200210
+201414
+201818
+204319
+810843

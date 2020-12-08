@@ -46,12 +46,20 @@ for l = 1:total
             
             TCs = load(['./DATA/',num2str(subjs(l)),'_QC_IB_tcs.mat']);
             eval(['TCs=TCs.',run,';']);
-            % Burges2016: to remove the impact of baseline differences in 
-            % thermal noice across participants and focus on transient fluctuations
-            [maskDVARS,censDVARS] = fmri_censoring_mask(dvars,thr.DVARS,'verbose',0);
-            
-            censFDDVARS = sum(not(maskFD.*maskDVARS));
-            nvol = length(maskFD);% just in case of different lenght
+            if not(isempty(TCs))
+                %this might be empty because 6 subjs do not have the
+                %atlas.dtseries
+                dvars = TCs.TCs.OrigDV - median(TCs.TCs.OrigDV);
+                % Burges2016: to remove the impact of baseline differences in 
+                % thermal noice across participants and focus on transient fluctuations
+                [maskDVARS,censDVARS] = fmri_censoring_mask(dvars,thr.DVARS,'verbose',0);
+
+                censFDDVARS = sum(not(maskFD.*maskDVARS));
+                nvol = length(maskFD);% just in case of different lenght
+            else
+                censDVARS = NaN;
+                censFDDVARS = NaN;
+            end
   
             y = table(y.relRMS.mean,y.FDJenk.mean,y.FDPower.mean,... FD metrics
                 censFD/nvol, censDVARS/nvol, censFDDVARS/nvol,... Percentage above thr metrics

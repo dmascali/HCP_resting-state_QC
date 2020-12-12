@@ -13,6 +13,25 @@ REST2_RL = extract_run('REST2_RL',subjs);
 
 save([output_folder,'/extracted_data'],'REST1_LR','REST1_RL','REST2_LR','REST2_RL');
 
+% Create a table that contains all runs (redundant but handy)
+% add run number as double
+REST1_LR.Run = ones(height(REST1_LR),1);
+REST1_RL.Run = ones(height(REST1_LR),1);
+REST2_LR.Run = 2*ones(height(REST1_LR),1);
+REST2_RL.Run = 2*ones(height(REST1_LR),1);
+% add PhaseEncoding
+REST1_LR.PhaseEncoding = repmat('LR',height(REST1_LR),1);
+REST1_RL.PhaseEncoding = repmat('RL',height(REST1_LR),1);
+REST2_LR.PhaseEncoding = repmat('LR',height(REST1_LR),1);
+REST2_RL.PhaseEncoding = repmat('RL',height(REST1_LR),1);
+% combine and reordinate table
+REST = [REST1_LR(:,[1 end-1:end 2:end-2]); ...
+        REST1_RL(:,[1 end-1:end 2:end-2]); ...
+        REST2_LR(:,[1 end-1:end 2:end-2]); ...
+        REST2_RL(:,[1 end-1:end 2:end-2])];
+
+save([output_folder,'/extracted_data'],'REST','-append');
+    
 return
 end
 
@@ -63,8 +82,8 @@ for l = 1:total
   
             y = table(y.relRMS.mean,y.FDJenk.mean,y.FDPower.mean,... FD metrics
                 censFD/nvol, censDVARS/nvol, censFDDVARS/nvol,... Percentage above thr metrics
-                'VariableNames',{'relRMS','FDJenk','FDPower', ...
-                                 'censFD', 'censDVARS',  'censFDDVARS' });
+                'VariableNames',{'RelRMS','FDJenk','FDPower', ...
+                                 'CensFD', 'CensDVARS',  'CensFDDVARS' });
             Trp = cat(1,Trp,y);
         else
             varnames = Trp.Properties.VariableNames;

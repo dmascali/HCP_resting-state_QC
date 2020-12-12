@@ -58,10 +58,20 @@ while Ntemp < N
     end
 end
 
+[stats_metric.p,stats_metric.h,stats_metric.stats]  = ranksum(HIGH_GROUP{:,IND},LOW_GROUP{:,IND});
+
+stats = []; count = 0;
+for l = 4:width(HIGH_GROUP)
+    count = count +1;
+    stats(count).name = HIGH_GROUP.Properties.VariableNames{l};
+    [stats(count).p,stats(count).h,stats(count).stats] =  ranksum(HIGH_GROUP{:,l},LOW_GROUP{:,l});
+
+end
+
 
 % save groups
 output_name = ['groups_INTERsubjs_pe',PhaseEconding,'_n',num2str(N),'_',metric,'.mat'];
-save(output_name,'LOW_GROUP','HIGH_GROUP');
+save(output_name,'LOW_GROUP','HIGH_GROUP','stats','stats_metric');
 
 
 return

@@ -11,7 +11,7 @@ REST1_RL = extract_run('REST1_RL',subjs);
 REST2_LR = extract_run('REST2_LR',subjs);
 REST2_RL = extract_run('REST2_RL',subjs);
 
-save([output_folder,'/extracted_data'],'REST1_LR','REST1_RL','REST2_LR','REST2_RL');
+save([output_folder,'/QC_database.mat'],'REST1_LR','REST1_RL','REST2_LR','REST2_RL');
 
 % Create a table that contains all runs (redundant but handy)
 % add run number as double
@@ -30,7 +30,7 @@ REST = [REST1_LR(:,[1 end-1:end 2:end-2]); ...
         REST2_LR(:,[1 end-1:end 2:end-2]); ...
         REST2_RL(:,[1 end-1:end 2:end-2])];
 
-save([output_folder,'/extracted_data'],'REST','-append');
+save([output_folder,'/QC_database.mat'],'REST','-append');
     
 return
 end

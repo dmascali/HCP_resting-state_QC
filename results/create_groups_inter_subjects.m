@@ -1,14 +1,14 @@
 function create_groups_inter_subjects(metric,N,PhaseEconding)
-% Construct two groups of subjects of size N maximazing the their
+% Construct two groups of subjects of size N maximazing their
 % difference in METRIC. Given a PHASENCONDING, subjects are selected from
 % the two runs.
 %
 % metric = char indicating the variable name in extracted_data
 % N = group size
 % PhaseEncoding = char indicating the phase enconding direction ('LR' or
-% 'RL'
+% 'RL')
 
-load('extracted_data.mat');
+load('QC_database.mat');
 
 %construct the table given the PhaseEconding. 
 T = REST(strcmpi(REST.PhaseEncoding,{PhaseEconding}),:);

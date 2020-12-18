@@ -6,12 +6,12 @@ function create_groups_intra_subjects(metric,Pct,PhaseEconding)
 %          selecting subjs
 % Pct = [0-100] percentile value used for dividing the distribution of the
 %       metric: low where ( metric < Pct ) and high where metric > (100-Pct) 
-%       Subjs with runs having matric values falling in the two sets 
+%       Subjs with runs having metric values falling in the two sets 
 %       will be selected. 
 % PhaseEncoding = string indicating the phase enconding direction ('LR' or
-%                 'RL'
+%                 'RL')
 
-load('extracted_data.mat');
+load('QC_database.mat');
 
 % add run number as double
 REST1_LR.Run = ones(height(REST1_LR),1);

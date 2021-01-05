@@ -15,6 +15,11 @@ else
    LOW_GROUP  = LOW_GROUP(index,:);  
 end
 
+%setup MatlabMailFeedback 
+mail = 'danielemascali@gmail.com';
+DeltaTime = 60*6; %every 6 hours sends a beacon
+sendstatus(mail);
+
 %get the phase encoding (is the same for all runs)
 PH = HIGH_GROUP{1,3};
 
@@ -26,6 +31,8 @@ fprintf(fid,['---> Extraction started',char(datetime('now')),'\n']);
 fprintf(fid,['---> Indexes: ',num2str(index),'\n']);
 
 for l = 1:size(subj_list,1)
+    
+    sendbeacon(mail,DeltaTime);
     
     subj = subj_list(l,:);
 

@@ -1,0 +1,3 @@
+---> Extraction started05-Jan-2021 13:42:37
+---> Indexes: 1  2
+---> Extraction compleated 05-Jan-2021 13:57:05

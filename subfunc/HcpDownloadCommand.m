@@ -1,4 +1,4 @@
-function [status] = HcpDownloadCommand(subj,hcp_file_path,local_folder,varargin)
+function [status,result] = HcpDownloadCommand(subj,hcp_file_path,local_folder,varargin)
 % subj = HCP subjID
 % hcp_file_path = path of the file to download
 % local_folder = HCP folder on your local system (where to download the
@@ -33,7 +33,7 @@ command_str = [aws_path,' s3 cp ', ...  %cp
                destination_folder,'/',na,ex]; %destination
 
 %run the command
-[status]= system(command_str);
+[status,result]= system(command_str);
 
 return
 end

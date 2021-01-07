@@ -1,5 +1,5 @@
 function nuisance_mask_creation(wmparc,outfolder,ref)
-wm_ero_cycles = 4; % maximum number of erosion cycles
+wm_ero_cycles = 5; % maximum number of erosion cycles
 csf_ero_cycles = 2; % maximum number of erosion cycles
 
 if nargin == 1
@@ -28,7 +28,7 @@ if not(isempty(ref))
         % write out the number of voxels in the roi
         [status,result] = system(['fslstats ',outfolder,'/rwm_e',num2str(l),'.nii.gz -V']);
         tmp = str2num(result); 
-        dlmwrite([outfolder,'/rwm_e',num2str(l),'._voxel_count.txt'],tmp(1));
+        dlmwrite([outfolder,'/rwm_e',num2str(l),'_voxel_count.txt'],tmp(1));
     end
 end
 
@@ -52,7 +52,7 @@ if not(isempty(ref))
         system(['flirt -in ',outfolder,'/csf_e',num2str(l),' -ref ',ref,' -out ',outfolder,'/rcsf_e',num2str(l),' -applyxfm -interp nearestneighbour']);
         % write out the number of voxels in the roi
         [status,result] = system(['fslstats ',outfolder,'/rcsf_e',num2str(l),'.nii.gz -V']);
-        tmp = str2num(result); dlmwrite([outfolder,'/rcsf_e',num2str(l),'._voxel_count.txt'],tmp(1));
+        tmp = str2num(result); dlmwrite([outfolder,'/rcsf_e',num2str(l),'_voxel_count.txt'],tmp(1));
     end
 end
 

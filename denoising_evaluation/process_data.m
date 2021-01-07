@@ -1,5 +1,8 @@
 function process_data
 
+mail = 'danielemascali@gmail.com';
+sendstatus(mail);
+
 data_folder = 'DATA';
 cw = pwd; data_folder = [cw,'/',data_folder];
 

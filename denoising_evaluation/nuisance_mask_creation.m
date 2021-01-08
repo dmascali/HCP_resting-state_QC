@@ -1,5 +1,5 @@
 function nuisance_mask_creation(wmparc,outfolder,ref)
-wm_ero_cycles = 5; % maximum number of erosion cycles
+wm_ero_cycles = 6; % maximum number of erosion cycles
 csf_ero_cycles = 2; % maximum number of erosion cycles
 
 if nargin == 1

@@ -100,6 +100,7 @@ for l = 1:n_subj
         run_name = ['rfMRI_REST',runs{r},'_',phase];
         
         ciftiraw = [subj_path,'/MNINonLinear/Results/',run_name,'/',run_name,'_Atlas'];
+        niftiraw = [subj_path,'/MNINonLinear/Results/',run_name,'/',run_name];
         RP =       [subj_path,'/MNINonLinear/Results/',run_name,'/Movement_Regressors.txt'];
         WMhcp =    [subj_path,'/MNINonLinear/Results/',run_name,'/',run_name,'_WM.txt'];
         CSFhcp =   [subj_path,'/MNINonLinear/Results/',run_name,'/',run_name,'_WM.txt'];
@@ -222,8 +223,16 @@ for l = 1:n_subj
         %iplot(orig,CleanedTCS')
         
         
+        % Filter nifti data
+        nifti_filtered  = [niftiraw,'_hp2000.nii.gz'];
+        if ~exist(nifti_filtered,'file')        
+            system(sprintf(['fslmaths ' niftiraw ' -bptf %f -1 ' niftiraw '_hp2000'],0.5*hp/TR));
+        end
+        %load nifti_filtered
+        nifti_filtered = spm_read_vols(spm_vol(nifti_filtered));
+        
         %-----------extract regressors-----------------------------
-        reg_set.run = extract_regressors({vol,Yaroma',YaromaAgg'},WM,CSF,apriori_BM_SS,RP24_hp2000,reg_set.names,TR,pass_band);
+        reg_set.run = extract_regressors(nifti_filtered,HighPassTCS,WMmask,CSFmask,WMtcHP,CSFtcHP,RP24_hp2000,reg_set.names,[],[]);
         %----------------------------------------------------------    
         
         for z = 1:pv_number
@@ -239,7 +248,13 @@ return
 end
 
 
-function x = extract_regressors(Y,WM,CSF,WB,rp24,regressor_set,TR,pass_band)
+function x = extract_regressors(Yvol,Ysurf,WMmask,CSFmask,WMts,CSFts,rp24,regressor_set,TR,pass_band)
+%inputs:
+%Yvol = nifti hp2000 filtered
+%Ysurf = gifti hp2000 filtered ( for MG?)
+%WM/CSFmask = nifti mask for extracting confounds
+%WM/CSFts = extracted by HCP (they have to be HP filtered)
+%RP24 = hp2000 filtered
 n_reg = length(regressor_set);
 
 

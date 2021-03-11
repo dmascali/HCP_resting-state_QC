@@ -32,7 +32,7 @@ TR = 0.72;
 
 %first define the set of all possible regressors that will be combined in
 %different processing variants
-reg_set.names = {'6RP','12RP','24RP','8Phys',...
+reg_set.names = {'6RP','12RP','24RP','2Phys',...
     'CompCor50%','CompCor50% opt.',...
     'CompCor'   ,'CompCor opt.',...
     'FIX'};
@@ -56,7 +56,7 @@ pv(end).iX = {'24RP'};
 pv(end).cens = 0;
 
 pv(end+1).band = pass_band;
-pv(end).iX = {'24RP','8Phys'};
+pv(end).iX = {'24RP','2Phys'};
 pv(end).cens = 0;
 
 pv(end+1).band = pass_band;
@@ -103,7 +103,7 @@ for l = 1:n_subj
         niftiraw = [subj_path,'/MNINonLinear/Results/',run_name,'/',run_name];
         RP =       [subj_path,'/MNINonLinear/Results/',run_name,'/Movement_Regressors.txt'];
         WMhcp =    [subj_path,'/MNINonLinear/Results/',run_name,'/',run_name,'_WM.txt'];
-        CSFhcp =   [subj_path,'/MNINonLinear/Results/',run_name,'/',run_name,'_WM.txt'];
+        CSFhcp =   [subj_path,'/MNINonLinear/Results/',run_name,'/',run_name,'_CSF.txt'];
         FIXnoise = [subj_path,'/MNINonLinear/Results/',run_name,'/',run_name,'_hp2000.ica/.fix']; %noise
         FIXICs =   [subj_path,'/MNINonLinear/Results/',run_name,'/',run_name,'_hp2000.ica/filtered_func_data.ica/melodic_mix']; %ICA components
         bias= [subj_path,'/MNINonLinear/Results/',run_name,'/',run_name,'_Atlas_hp2000_clean_bias.dscalar.nii']; %bias field
@@ -200,6 +200,7 @@ for l = 1:n_subj
             load(filtered_phys_HCP)
         end
         
+
         %READ ICA TS
         ICAorig = normalise(load(FIXICs));
         FIXnoise=load(FIXnoise);
@@ -225,12 +226,20 @@ for l = 1:n_subj
         
         % Filter nifti data
         nifti_filtered  = [niftiraw,'_hp2000.nii.gz'];
-        if ~exist(nifti_filtered,'file')        
+        if ~exist(nifti_filtered,'file')  
+            tic;
             system(sprintf(['fslmaths ' niftiraw ' -bptf %f -1 ' niftiraw '_hp2000'],0.5*hp/TR));
+            readsec(toc)
         end
         %load nifti_filtered
         nifti_filtered = spm_read_vols(spm_vol(nifti_filtered));
+        %nifti_filtered should be normalised?
         
+        %load masks
+        WMmask = [subj_path,WM_name];
+        CSFmask = [subj_path,CSF_name];
+        
+
         %-----------extract regressors-----------------------------
         reg_set.run = extract_regressors(nifti_filtered,HighPassTCS,WMmask,CSFmask,WMtcHP,CSFtcHP,RP24_hp2000,reg_set.names,[],[]);
         %----------------------------------------------------------    
@@ -248,7 +257,7 @@ return
 end
 
 
-function x = extract_regressors(Yvol,Ysurf,WMmask,CSFmask,WMts,CSFts,rp24,regressor_set,TR,pass_band)
+function x = extract_regressors(Yvol,Ysurf,WM,CSF,WMts,CSFts,rp24,regressor_set,TR,pass_band)
 %inputs:
 %Yvol = nifti hp2000 filtered
 %Ysurf = gifti hp2000 filtered ( for MG?)
@@ -268,93 +277,20 @@ for l = 1:n_reg
             x{l} = rp24(:,1:12);
         case {'24RP'}
             x{l} = rp24;
-        case {'Phys2'}
-            x{l} = fmri_acompcor(vol,{WM,CSF},[0 0],'confounds',[]);
-        case {'Phys4'}
-            x{l} = fmri_acompcor(vol,{WM,CSF},[0 0],'confounds',[],'derivatives',[1 1]);
-        case {'Phys8'}
-            x{l} = fmri_acompcor(vol,{WM,CSF},[0 0],'confounds',[],'derivatives',[1 1],'squares',[1 1]);
-        case {'CCo12'}
-            x{l} = fmri_acompcor(vol,{WM,CSF},[5 5],'confounds',rp12,'firstmean','off','DatNormalise','off');
-        case {'CCo24'}
-            x{l} = fmri_acompcor(vol,{WM,CSF},[5 5],'confounds',rp24,'firstmean','off','DatNormalise','off');
-        case {'GSR2o12'}
-            x{l} = fmri_acompcor(vol,{WB},[0],'confounds',rp12,'derivatives',[1]);
-        case {'GSR2o24'}
-            x{l} = fmri_acompcor(vol,{WB},[0],'confounds',rp24,'derivatives',[1]);
-        case {'AROMA'}
-            x{l} = fmri_acompcor(volAroma,{WM,CSF},[0 0],'confounds',[]);
-        case {'AROMAagg'}
-            x{l} = fmri_acompcor(volAromaAgg,{WM,CSF},[0 0],'confounds',[]);
-        case {'GSR2Aroma'}
-            x{l} = fmri_acompcor(volAroma,{WB},[0],'confounds',[],'derivatives',[1]);
-        case {'GSR2AromaAgg'}
-            x{l} = fmri_acompcor(volAromaAgg,{WB},[0],'confounds',[],'derivatives',[1]);
-        case {'GSR2'}
-            x{l} = fmri_acompcor(vol,{WB},[0],'confounds',[],'derivatives',[1]);
-        case {'GSR4'}
-            x{l} = fmri_acompcor(vol,{WB},[0],'confounds',[],'derivatives',[1],'squares',[1]);
-        case {'CC'}
-            x{l} = fmri_acompcor(vol,{WM,CSF},[5 5],'confounds',[],'firstmean','off','DatNormalise','off');  
-        case {'CCm'}
-            x{l} = fmri_acompcor(vol,{WM,CSF},[5 5],'confounds',[],'firstmean','on','DatNormalise','off');  
-        case {'CCvn'}
-            x{l} = fmri_acompcor(vol,{WM,CSF},[5 5],'confounds',[],'firstmean','off','DatNormalise','on');  
-        case {'CCoBP'}
-            %BpReg = BandPassOrt(size(vol,2),TR,pass_band(1),pass_band(2),1);
-            x{l} = fmri_acompcor(vol,{WM,CSF},[5 5],'filter',[TR,pass_band(1),pass_band(2)],'PolOrder',1,'firstmean','off','DatNormalise','off'); 
-        case {'CCoBPo24'}
-            %BpReg = BandPassOrt(size(vol,2),TR,pass_band(1),pass_band(2),1);
-            x{l} = fmri_acompcor(vol,{WM,CSF},[5 5],'confounds',rp24,'filter',[TR,pass_band(1),pass_band(2)],'PolOrder',1,'firstmean','off','DatNormalise','off');            
-          
-        case {'CC50'}
-            x{l} = fmri_acompcor(vol,{WM,CSF},[0.5 0.5],'confounds',[],'firstmean','off','DatNormalise','off');  
-        case {'CC50m'}
-            x{l} = fmri_acompcor(vol,{WM,CSF},[0.5 0.5],'confounds',[],'firstmean','on','DatNormalise','off');  
-        case {'CC50oBP'}
-            x{l} = fmri_acompcor(vol,{WM,CSF},[0.5 0.5],'confounds',[],'filter',[TR,pass_band(1),pass_band(2)],'PolOrder',1,'firstmean','off','DatNormalise','off'); 
-        case {'CC50oBPo24'}
-           x{l} = fmri_acompcor(vol,{WM,CSF},[0.5 0.5],'confounds',rp24,'filter',[TR,pass_band(1),pass_band(2)],'PolOrder',1,'firstmean','off','DatNormalise','off');
-        case {'CC50o24'}
-            x{l} = fmri_acompcor(vol,{WM,CSF},[0.5 0.5],'confounds',rp24,'firstmean','off','DatNormalise','off');
-
-        case {'CCoBPo24F'}
-            %BpReg = BandPassOrt(size(vol,2),TR,pass_band(1),pass_band(2),1);
-            x{l} = fmri_acompcor(vol,{CSF,WM},[5 5],    'confounds',rp24,'filter',[TR,pass_band(1),pass_band(2)],'PolOrder',1,'fullOrt','on','firstmean','off','DatNormalise','off');               
-        case {'CC50oBPo24F'}
-            x{l} = fmri_acompcor(vol,{CSF,WM},[0.5 0.5],'confounds',rp24,'filter',[TR,pass_band(1),pass_band(2)],'PolOrder',1,'fullOrt','on','firstmean','off','DatNormalise','off');
-
-            
-        case {'CCoBPo24oGSR2'}
-            %BpReg = BandPassOrt(size(vol,2),TR,pass_band(1),pass_band(2),1);
-            gsr2 = fmri_acompcor(vol,{WB},[0],'confounds',[],'derivatives',[1]);
-            x{l} = fmri_acompcor(vol,{WM,CSF},[5 5],'confounds',[rp24,gsr2],'filter',[TR,pass_band(1),pass_band(2)],'PolOrder',1,'fullOrt','off','firstmean','off','DatNormalise','off');              
-        case {'CCoBPo24oGSR2F'}
-            %BpReg = BandPassOrt(size(vol,2),TR,pass_band(1),pass_band(2),1);
-            gsr2 = fmri_acompcor(vol,{WB},[0],'confounds',[],'derivatives',[1]);
-            x{l} = fmri_acompcor(vol,{CSF,WM},[5 5],'confounds',[rp24,gsr2],'filter',[TR,pass_band(1),pass_band(2)],'PolOrder',1,'fullOrt','on','firstmean','off','DatNormalise','off');             
-
-        case {'CC50oBPo24oGSR2'}
-            gsr2 = fmri_acompcor(vol,{WB},[0],'confounds',[],'derivatives',[1]);
-            x{l} = fmri_acompcor(vol,{CSF,WM},[0.5 0.5],'confounds',[rp24,gsr2],'filter',[TR,pass_band(1),pass_band(2)],'PolOrder',1,'fullOrt','off','firstmean','off','DatNormalise','off');
-                  
-        case {'CC50oBPo24oGSR2F'}
-            gsr2 = fmri_acompcor(vol,{WB},[0],'confounds',[],'derivatives',[1]);
-            x{l} = fmri_acompcor(vol,{CSF,WM},[0.5 0.5],'confounds',[rp24,gsr2],'filter',[TR,pass_band(1),pass_band(2)],'PolOrder',1,'fullOrt','on','firstmean','off','DatNormalise','off');
-            
-        case {'CCoBPo6'}
-            x{l} = fmri_acompcor(vol,{WM,CSF},[5 5],'confounds',rp,'filter',[TR,pass_band(1),pass_band(2)],'PolOrder',1,'firstmean','off','DatNormalise','off');            
-        case {'CCoBPo6F'}
-            x{l} = fmri_acompcor(vol,{WM,CSF},[5 5],'confounds',rp,'filter',[TR,pass_band(1),pass_band(2)],'PolOrder',1,'fullOrt','on','firstmean','off','DatNormalise','off');            
-        case {'CC50oBPo6'}
-            x{l} = fmri_acompcor(vol,{WM,CSF},[0.5 0.5],'confounds',rp,'filter',[TR,pass_band(1),pass_band(2)],'PolOrder',1,'firstmean','off','DatNormalise','off');
-        case {'CC50oBPo6F'}
-            x{l} = fmri_acompcor(vol,{WM,CSF},[0.5 0.5],'confounds',rp,'filter',[TR,pass_band(1),pass_band(2)],'PolOrder',1,'fullOrt','on','firstmean','off','DatNormalise','off');
-             
+        case {'2Phys'}
+            x{l} = fmri_compcor(Yvol,{WM,CSF},[0 0]);
+        case {'CompCor'}
+            x{l} = fmri_compcor(Yvol,{WM,CSF},[5 5]);
+        case {'CompCor opt.'}
+            x{l} = fmri_compcor(Yvol,{WM,CSF},[5 5],'confounds',rp24);
+        case {'CompCor50%'}
+            x{l} = fmri_compcor(Yvol,{WM,CSF},[.5 .5]);
+        case {'CompCor50% opt.'}
+            x{l} = fmri_compcor(Yvol,{WM,CSF},[.5 .5],'confounds',rp24);         
+        case {'FIX'}
+            x{l} = [];
         otherwise
             error('not recognized regression set, check name definitions');
-       
-            
     end
 end
 return

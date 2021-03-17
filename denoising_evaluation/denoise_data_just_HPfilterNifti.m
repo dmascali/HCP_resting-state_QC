@@ -148,10 +148,10 @@ for l = 1:n_subj
             %remove the fake nifti 
             system(['rm ' outprefix '_fakeNIFTI.nii.gz']);
         else
-            load(filtered_cifti);
+            %load(filtered_cifti);
         end
         
-        HighPassTCS=BO.cdata;
+        %HighPassTCS=BO.cdata;
         
         filtered_RP = [subj_path,'/MNINonLinear/Results/',run_name,'/hp2000_RP.mat'];
         if ~exist(filtered_RP,'file')        
@@ -173,7 +173,7 @@ for l = 1:n_subj
             %save filtered parameters
             save(filtered_RP,'RP24_hp2000')
         else
-            load(filtered_RP)
+            %load(filtered_RP)
         end
             
         % NOT SURE WE WILL USE THIS
@@ -197,7 +197,7 @@ for l = 1:n_subj
             %save filtered series
             save(filtered_phys_HCP,'WMtcHP','CSFtcHP')
         else
-            load(filtered_phys_HCP)
+           % load(filtered_phys_HCP)
         end
         
 %         %READ ICA TS

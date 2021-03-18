@@ -12,6 +12,10 @@ runs  = {'1','2'};
 phase = 'RL';
 hp = 2000;
 
+polort = 1;
+
+save_des_info = 1;
+
 WBC='wb_command';
 bcmode = 'NONE';
 
@@ -151,7 +155,7 @@ for l = 1:n_subj
             load(filtered_cifti);
         end
         
-        HighPassTCS=BO.cdata;
+        cifti_filtered=BO.cdata;
         
         filtered_RP = [subj_path,'/MNINonLinear/Results/',run_name,'/hp2000_RP.mat'];
         if ~exist(filtered_RP,'file')        
@@ -207,7 +211,7 @@ for l = 1:n_subj
                 
         % Aggressively regress out RP24 from ICA and from data:
         ICA = ICAorig - (RP24_hp2000 * (pinv(RP24_hp2000,1e-6) * ICAorig));     
-        PostMotionTCS = HighPassTCS - (RP24_hp2000 * (pinv(RP24_hp2000,1e-6) * HighPassTCS'))';
+        PostMotionTCS = cifti_filtered - (RP24_hp2000 * (pinv(RP24_hp2000,1e-6) * cifti_filtered'))';
         
         % FIX cleanup post motion
         %total = 1:size(ICA,2);
@@ -241,11 +245,52 @@ for l = 1:n_subj
         
 
         %-----------extract regressors-----------------------------
-        reg_set.run = extract_regressors(nifti_filtered,HighPassTCS,WMmask,CSFmask,WMtcHP,CSFtcHP,RP24_hp2000,reg_set.names,[],[]);
+        reg_set.run = extract_regressors(nifti_filtered,cifti_filtered,WMmask,CSFmask,WMtcHP,CSFtcHP,RP24_hp2000,reg_set.names,[],[]);
         %----------------------------------------------------------    
         
         for z = 1:pv_number
             fprintf('\n--> Processing variant > %d %s',z,pv(z).name);
+            
+            %initialize variables
+            pv(z).run(r).des_info = [];  
+            
+            reg_indexes = find(ismember(reg_set.names,pv(z).iX));
+            X = cat(2,reg_set.run{reg_indexes});
+            
+            
+            if any(strcmpi(pv(z).iX,'FIX')) % do nothing
+               disp('Using FIX data')
+               des_info = [];
+            else
+                %------------do the cleaning---------------------------------------
+                try    
+                    lastwarn("");
+                    [res,des_info] = fmri_cleaning(cifti_filtered,polort,X);
+                    res = res';
+                    [warnmsg,msgid] = lastwarn;
+                    if ~isempty(msgid)
+                        if strcmp(msgid,'MATLAB:rankDeficientMatrix')
+                            subj_info(l).pv(z).wngmsg = 1;
+                        else
+                            subj_info(l).pv(z).wngmsg = warnmsg;  %a differnet msg
+                        end
+                    else
+                        subj_info(l).pv(z).wngmsg = 0;
+                    end
+                catch
+                    subj_info(l).pv(z).failed = 1;
+                    subj_info(l).pv(z).wngmsg = -1;
+                    continue
+                end
+
+            end
+            
+            if save_des_info 
+                pv(z).run(r).des_info = des_info;
+            end
+            
+
+            
         end
         
         
